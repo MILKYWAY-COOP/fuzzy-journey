@@ -1,50 +1,65 @@
 import { useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  TextInput,
-  FlatList
-} from 'react-native';
+import { StyleSheet, View, FlatList, Button } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+
+import GoalItem from './components/GoalItem';
+import GoalInput from './components/GoalInput';
 
 export default function App() {
   const [enteredGoal, setEnteredGoal] = useState('');
   const [courseGoals, setCourseGoals] = useState([]);
+  const [isVisible, setIsVisible] = useState(false);
+
+  function startAddGoalHandler() {
+    setIsVisible(!isVisible);
+  }
 
   function goalInputHandler(enteredText) {
     setEnteredGoal(enteredText);
   }
 
   function addGoalHandler() {
-    setCourseGoals((currentGoals) => [...currentGoals, { id: Math.random().toString(), value: enteredGoal }]);
+    setCourseGoals((currentGoals) => [
+      ...currentGoals,
+      { id: Math.random().toString(), value: enteredGoal }
+    ]);
+    setEnteredGoal('');
   }
 
   return (
-    <View style={styles.appContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder='Your Course Goal!'
-          style={styles.inputContainer.textInput}
-          onChangeText={goalInputHandler}
+    <>
+      <StatusBar style='dark'/>
+      <View style={styles.appContainer}>
+        <Button
+          title='Add New Goal'
+          color='grey'
+          onPress={startAddGoalHandler}
         />
-        <Button title='ADD GOAL' color='#202A44' onPress={addGoalHandler} />
-      </View>
-      <View style={styles.goalsContainer}>
-        <FlatList
-          data={courseGoals}
-          renderItem={(itemData) => {
-            return (
-              <View style={styles.goalItem}>
-                <Text style={styles.goalText}>{itemData.item.value}</Text>
-              </View>
-            )
-          }}
-          keyExtractor={(item, index) => item.id}
-          alwaysBounceVertical={true}
+        <GoalInput
+          goalInputHandler={goalInputHandler}
+          addGoalHandler={addGoalHandler}
+          enteredGoal={enteredGoal}
+          isVisible={isVisible}
+          startAddGoalHandler={startAddGoalHandler}
         />
+        <View style={styles.goalsContainer}>
+          <FlatList
+            data={courseGoals}
+            renderItem={(itemData) => {
+              return (
+                <GoalItem
+                  itemData={itemData}
+                  setCourseGoals={setCourseGoals}
+                  courseGoals={courseGoals}
+                />
+              );
+            }}
+            keyExtractor={(item, index) => item.id}
+            alwaysBounceVertical={true}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -54,27 +69,8 @@ const styles = StyleSheet.create({
     padding: 50,
     paddingHorizontal: 16,
     flex: 1,
-    flexDirection: 'column'
-  },
-
-  inputContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
-
-    textInput: {
-      width: '80%',
-      borderWidth: 1,
-      borderColor: '#cccccc',
-      marginRight: 10,
-      padding: 10,
-      borderRadius: 5,
-      marginBottom: 15
-    }
+    flexDirection: 'column',
+    backgroundColor: '#FFD700'
   },
 
   goalsContainer: {
@@ -84,17 +80,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#202A44'
-  },
-
-  goalItem: {
-    width: '100%',
-    margin: 8,
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: '#5e0acc'
-  },
-
-  goalText: {
-    color: '#ffffff'
   }
 });
+
+// what does .splice() do?
+// The splice() method changes the contents of an array by removing or replacing existing elements and/or adding new elements in place.
